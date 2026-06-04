@@ -271,6 +271,88 @@ function HeroSlot({
   );
 }
 
+// ---- Gallery card ----
+function GalleryCard({
+  item, allUrls, onChangeSrc, onChangeCategory, onChangeAlt, onDelete,
+}: {
+  item: { src: string; category: string; alt: string };
+  allUrls: string[];
+  onChangeSrc: (v: string) => void;
+  onChangeCategory: (v: string) => void;
+  onChangeAlt: (v: string) => void;
+  onDelete: () => void;
+}) {
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  return (
+    <>
+      <div className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden flex flex-col">
+
+        {/* Preview — click to change */}
+        <div
+          className="relative h-40 cursor-pointer group flex-shrink-0"
+          onClick={() => setPickerOpen(true)}
+        >
+          <Thumb url={item.src} />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-200 flex items-center justify-center">
+            <span className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 bg-white/90 text-[#1F4D36] text-xs font-semibold px-3 py-1.5 rounded-full">
+              <FolderOpen size={13} /> Cambiar imagen
+            </span>
+          </div>
+        </div>
+
+        {/* Controls */}
+        <div className="p-3 space-y-2 flex-1 flex flex-col">
+          {/* Category + Delete — fila separada */}
+          <div className="flex items-center gap-2">
+            <select
+              value={item.category}
+              onChange={e => onChangeCategory(e.target.value)}
+              className="flex-1 bg-white/5 border border-white/10 text-white/70 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-[#C9A66B]/50"
+            >
+              {GALLERY_CATEGORIES.map(c => (
+                <option key={c} value={c} className="bg-[#0D1F16]">{c}</option>
+              ))}
+            </select>
+            <button
+              onClick={onDelete}
+              title="Eliminar foto"
+              className="w-8 h-8 flex-shrink-0 rounded-lg bg-red-500/10 hover:bg-red-500/25 flex items-center justify-center text-red-400/60 hover:text-red-400 transition-all"
+            >
+              <Trash2 size={13} />
+            </button>
+          </div>
+
+          {/* Alt text */}
+          <input
+            type="text"
+            value={item.alt}
+            placeholder="Descripción..."
+            onChange={e => onChangeAlt(e.target.value)}
+            className="w-full bg-white/5 border border-white/10 text-white/60 placeholder-white/20 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-[#C9A66B]/50"
+          />
+
+          {/* Change button */}
+          <button
+            onClick={() => setPickerOpen(true)}
+            className="w-full flex items-center justify-center gap-1.5 bg-[#1F4D36]/40 hover:bg-[#1F4D36]/70 text-white/60 hover:text-white text-xs font-medium py-1.5 rounded-lg transition-all mt-auto"
+          >
+            <FolderOpen size={12} /> Cambiar desde galería
+          </button>
+        </div>
+      </div>
+
+      <ImagePicker
+        open={pickerOpen}
+        currentUrl={item.src}
+        inUseImages={allUrls}
+        onSelect={onChangeSrc}
+        onClose={() => setPickerOpen(false)}
+      />
+    </>
+  );
+}
+
 export default function AdminPhotos() {
   const [photos, setPhotos] = useState<PhotosConfig | null>(null);
   const [loading, setLoading] = useState(true);
@@ -438,47 +520,21 @@ export default function AdminPhotos() {
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {photos.gallery.map((item, i) => (
-                <div key={i} className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden">
-                  <div className="relative h-36">
-                    <ImageSlot
-                      label=""
-                      url={item.src}
-                      aspectClass="h-36"
-                      allUrls={allConfigUrls}
-                      onChange={v => setPhotos(p => p ? {
-                        ...p, gallery: p.gallery.map((g, j) => j === i ? { ...g, src: v } : g)
-                      } : p)}
-                    />
-                  </div>
-
-                  {/* Meta fields */}
-                  <div className="p-3 space-y-2">
-                    <div className="flex gap-2">
-                      <select
-                        value={item.category}
-                        onChange={e => setPhotos(p => p ? {
-                          ...p, gallery: p.gallery.map((g, j) => j === i ? { ...g, category: e.target.value } : g)
-                        } : p)}
-                        className="flex-1 bg-white/5 border border-white/10 text-white/70 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-[#C9A66B]/50">
-                        {GALLERY_CATEGORIES.map(c => <option key={c} value={c} className="bg-[#0D1F16]">{c}</option>)}
-                      </select>
-                      <button
-                        onClick={() => setPhotos(p => p ? { ...p, gallery: p.gallery.filter((_, j) => j !== i) } : p)}
-                        className="w-8 h-8 flex-shrink-0 rounded-lg bg-red-500/10 hover:bg-red-500/20 flex items-center justify-center text-red-400/60 hover:text-red-400 transition-all">
-                        <Trash2 size={13} />
-                      </button>
-                    </div>
-                    <input
-                      type="text"
-                      value={item.alt}
-                      placeholder="Descripción..."
-                      onChange={e => setPhotos(p => p ? {
-                        ...p, gallery: p.gallery.map((g, j) => j === i ? { ...g, alt: e.target.value } : g)
-                      } : p)}
-                      className="w-full bg-white/5 border border-white/10 text-white/60 placeholder-white/20 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-[#C9A66B]/50"
-                    />
-                  </div>
-                </div>
+                <GalleryCard
+                  key={i}
+                  item={item}
+                  allUrls={allConfigUrls}
+                  onChangeSrc={v => setPhotos(p => p ? {
+                    ...p, gallery: p.gallery.map((g, j) => j === i ? { ...g, src: v } : g)
+                  } : p)}
+                  onChangeCategory={v => setPhotos(p => p ? {
+                    ...p, gallery: p.gallery.map((g, j) => j === i ? { ...g, category: v } : g)
+                  } : p)}
+                  onChangeAlt={v => setPhotos(p => p ? {
+                    ...p, gallery: p.gallery.map((g, j) => j === i ? { ...g, alt: v } : g)
+                  } : p)}
+                  onDelete={() => setPhotos(p => p ? { ...p, gallery: p.gallery.filter((_, j) => j !== i) } : p)}
+                />
               ))}
 
               {/* Add new */}

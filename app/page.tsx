@@ -13,6 +13,9 @@ import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { getPhotos } from "@/lib/store";
 
+// Force dynamic rendering so photos are read from disk on every request
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   const photos = getPhotos();
   return (

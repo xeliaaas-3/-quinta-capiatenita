@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { X, Search, Check, Link, Grid2X2, Upload, Loader2, AlertCircle } from "lucide-react";
+import { X, Search, Check, Link, Grid2X2, Upload, Loader2, AlertCircle, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Curated Unsplash image library for the quinta
@@ -261,38 +261,57 @@ export default function ImagePicker({ open, currentUrl, onSelect, onClose, inUse
                     {filtered.map((img, i) => {
                       const isSelected = selected === img.src;
                       const hasError = imgErrors.has(img.src);
+                      const isMine = img.tag === "mis fotos";
                       return (
-                        <button
-                          key={img.src + i}
-                          onClick={() => setSelected(img.src)}
-                          className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all duration-200 group ${isSelected ? "border-[#C9A66B] scale-[0.97] shadow-lg shadow-[#C9A66B]/20" : "border-transparent hover:border-white/30"}`}
-                        >
-                          {hasError ? (
-                            <div className="w-full h-full bg-white/5 flex items-center justify-center">
-                              <Upload size={16} className="text-white/20" />
-                            </div>
-                          ) : (
-                            <Image
-                              src={img.src}
-                              alt={img.tag}
-                              fill
-                              className="object-cover group-hover:scale-105 transition-transform duration-500"
-                              sizes="150px"
-                              unoptimized
-                              onError={() => setImgErrors(prev => new Set([...prev, img.src]))}
-                            />
-                          )}
-                          <span className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white/70 text-[10px] px-2 py-1.5 font-medium capitalize opacity-0 group-hover:opacity-100 transition-opacity">
-                            {img.tag}
-                          </span>
-                          {isSelected && (
-                            <div className="absolute inset-0 bg-[#C9A66B]/20 flex items-center justify-center">
-                              <div className="w-8 h-8 rounded-full bg-[#C9A66B] flex items-center justify-center shadow-lg">
-                                <Check size={16} className="text-white" />
+                        <div key={img.src + i} className="relative aspect-square group">
+                          <button
+                            onClick={() => setSelected(img.src)}
+                            className={`relative w-full h-full rounded-xl overflow-hidden border-2 transition-all duration-200 ${isSelected ? "border-[#C9A66B] scale-[0.97] shadow-lg shadow-[#C9A66B]/20" : "border-transparent hover:border-white/30"}`}
+                          >
+                            {hasError ? (
+                              <div className="w-full h-full bg-white/5 flex items-center justify-center">
+                                <Upload size={16} className="text-white/20" />
                               </div>
-                            </div>
+                            ) : (
+                              <Image
+                                src={img.src}
+                                alt={img.tag}
+                                fill
+                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                sizes="150px"
+                                unoptimized
+                                onError={() => setImgErrors(prev => new Set([...prev, img.src]))}
+                              />
+                            )}
+                            <span className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white/70 text-[10px] px-2 py-1.5 font-medium capitalize opacity-0 group-hover:opacity-100 transition-opacity">
+                              {img.tag}
+                            </span>
+                            {isSelected && (
+                              <div className="absolute inset-0 bg-[#C9A66B]/20 flex items-center justify-center">
+                                <div className="w-8 h-8 rounded-full bg-[#C9A66B] flex items-center justify-center shadow-lg">
+                                  <Check size={16} className="text-white" />
+                                </div>
+                              </div>
+                            )}
+                          </button>
+
+                          {/* Delete button — solo en "mis fotos" */}
+                          {isMine && (
+                            <button
+                              onClick={e => {
+                                e.stopPropagation();
+                                const updated = uploadedImages.filter(u => u !== img.src);
+                                setUploadedImages(updated);
+                                localStorage.setItem("quinta_uploaded_images", JSON.stringify(updated));
+                                if (selected === img.src) setSelected("");
+                              }}
+                              className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 hover:bg-red-500 flex items-center justify-center text-white/70 hover:text-white opacity-0 group-hover:opacity-100 transition-all z-10"
+                              title="Eliminar foto"
+                            >
+                              <Trash2 size={11} />
+                            </button>
                           )}
-                        </button>
+                        </div>
                       );
                     })}
 

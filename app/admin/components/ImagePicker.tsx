@@ -67,6 +67,7 @@ export default function ImagePicker({ open, currentUrl, onSelect, onClose, inUse
 
   // Uploaded images (Cloudinary)
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [hiddenImages, setHiddenImages] = useState<Set<string>>(new Set());
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -81,11 +82,13 @@ export default function ImagePicker({ open, currentUrl, onSelect, onClose, inUse
     if (tab === "url" && inputRef.current) inputRef.current.focus();
   }, [tab]);
 
-  // Load previously uploaded images from localStorage (persisted per session)
+  // Load persisted data from localStorage
   useEffect(() => {
     try {
       const stored = localStorage.getItem("quinta_uploaded_images");
       if (stored) setUploadedImages(JSON.parse(stored));
+      const hidden = localStorage.getItem("quinta_hidden_images");
+      if (hidden) setHiddenImages(new Set(JSON.parse(hidden)));
     } catch { /* ignore */ }
   }, []);
 
@@ -134,6 +137,13 @@ export default function ImagePicker({ open, currentUrl, onSelect, onClose, inUse
     }
   }
 
+  function hideImage(src: string) {
+    const updated = new Set([...hiddenImages, src]);
+    setHiddenImages(updated);
+    localStorage.setItem("quinta_hidden_images", JSON.stringify([...updated]));
+    if (selected === src) setSelected("");
+  }
+
   // Merge all image sources
   const allImages = [
     // Uploaded (Cloudinary) — shown as "mis fotos"
@@ -142,7 +152,8 @@ export default function ImagePicker({ open, currentUrl, onSelect, onClose, inUse
     ...inUseImages
       .filter(u => u && !UNSPLASH_LIBRARY.find(l => l.src === u) && !uploadedImages.includes(u))
       .map(u => ({ src: u, tag: "mis fotos" })),
-    ...UNSPLASH_LIBRARY,
+    // Library — excluding hidden ones
+    ...UNSPLASH_LIBRARY.filter(img => !hiddenImages.has(img.src)),
   ];
 
   const filtered = allImages.filter(img => {
@@ -295,22 +306,24 @@ export default function ImagePicker({ open, currentUrl, onSelect, onClose, inUse
                             )}
                           </button>
 
-                          {/* Delete button — solo en "mis fotos" */}
-                          {isMine && (
-                            <button
-                              onClick={e => {
-                                e.stopPropagation();
+                          {/* Delete button — en todas las fotos */}
+                          <button
+                            onClick={e => {
+                              e.stopPropagation();
+                              if (isMine) {
                                 const updated = uploadedImages.filter(u => u !== img.src);
                                 setUploadedImages(updated);
                                 localStorage.setItem("quinta_uploaded_images", JSON.stringify(updated));
                                 if (selected === img.src) setSelected("");
-                              }}
-                              className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 hover:bg-red-500 flex items-center justify-center text-white/70 hover:text-white opacity-0 group-hover:opacity-100 transition-all z-10"
-                              title="Eliminar foto"
-                            >
-                              <Trash2 size={11} />
-                            </button>
-                          )}
+                              } else {
+                                hideImage(img.src);
+                              }
+                            }}
+                            className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 hover:bg-red-500 flex items-center justify-center text-white/70 hover:text-white opacity-0 group-hover:opacity-100 transition-all z-10"
+                            title="Eliminar foto"
+                          >
+                            <Trash2 size={11} />
+                          </button>
                         </div>
                       );
                     })}

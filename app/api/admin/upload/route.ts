@@ -9,7 +9,7 @@ cloudinary.config({
 });
 
 export async function POST(req: NextRequest) {
-  if (!isAuthenticated(req)) {
+  if (!(await isAuthenticated())) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 

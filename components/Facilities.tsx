@@ -3,50 +3,45 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
-const facilities = [
-  {
+const FACILITY_META: Record<string, {
+  title: string; subtitle: string; description: string;
+  features: string[]; tag: string; color: string;
+}> = {
+  piscina: {
     title: "Piscina con Cascada",
     subtitle: "Refrescá tu celebración",
-    description:
-      "Piscina de dos niveles con sistema ionizador (cloro reducido), hermosa cascada decorativa y zona playa segura para los más chicos. Diseñada para que todos disfruten con total comodidad y seguridad.",
+    description: "Piscina de dos niveles con sistema ionizador (cloro reducido), hermosa cascada decorativa y zona playa segura para los más chicos. Diseñada para que todos disfruten con total comodidad y seguridad.",
     features: ["Sistema ionizador", "Dos niveles", "Cascada decorativa", "Zona playa para niños"],
-    image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=85",
-    tag: "Premium",
-    color: "#1F4D36",
+    tag: "Premium", color: "#1F4D36",
   },
-  {
+  quincho: {
     title: "Quincho Equipado",
     subtitle: "El placer de compartir",
-    description:
-      "Quincho totalmente equipado con parrilla multiuso, plancha a gas profesional, piletas, mesadas amplias y utensilios completos para 40 personas incluidos. Todo lo que necesitás para el asado perfecto.",
+    description: "Quincho totalmente equipado con parrilla multiuso, plancha a gas profesional, piletas, mesadas amplias y utensilios completos para 40 personas incluidos. Todo lo que necesitás para el asado perfecto.",
     features: ["Parrilla multiuso", "Plancha a gas profesional", "Piletas y mesadas", "Utensilios para 40 personas"],
-    image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=85",
-    tag: "Equipado",
-    color: "#C9A66B",
+    tag: "Equipado", color: "#C9A66B",
   },
-  {
+  salon: {
     title: "Salón Principal",
     subtitle: "Elegancia moderna",
-    description:
-      "Salón moderno con capacidad para hasta 100 personas, TV retráctil, Wi-Fi, sillones, mesa de billar y sistema de sonido JBL 320. Mesas con mantel y sillas incluidas para una experiencia completa.",
+    description: "Salón moderno con capacidad para hasta 100 personas, TV retráctil, Wi-Fi, sillones, mesa de billar y sistema de sonido JBL 320. Mesas con mantel y sillas incluidas para una experiencia completa.",
     features: ["Capacidad 100 personas", "TV retráctil + Wi-Fi", "Mesa de billar", "Sillas y mesas con mantel incluidas"],
-    image: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800&q=85",
-    tag: "Moderno",
-    color: "#1F4D36",
+    tag: "Moderno", color: "#1F4D36",
   },
-  {
+  ninos: {
     title: "Espacio para Niños",
     subtitle: "Diversión garantizada",
-    description:
-      "Cama elástica (trampolín) y amplios espacios verdes para que los niños jueguen y se diviertan con total seguridad. El complemento perfecto para que grandes y chicos disfruten por igual.",
+    description: "Cama elástica (trampolín) y amplios espacios verdes para que los niños jueguen y se diviertan con total seguridad. El complemento perfecto para que grandes y chicos disfruten por igual.",
     features: ["Cama elástica", "Espacios verdes amplios", "Zona segura", "Ideal para fotografías"],
-    image: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800&q=85",
-    tag: "Familiar",
-    color: "#C9A66B",
+    tag: "Familiar", color: "#C9A66B",
   },
-];
+};
 
-export default function Facilities() {
+export default function Facilities({ images }: { images: Record<string, string> }) {
+  const facilities = Object.entries(FACILITY_META).map(([key, meta]) => ({
+    ...meta,
+    image: images[key] ?? "",
+  }));
   return (
     <section id="instalaciones" className="py-28 bg-[#F5F0E8]">
       <div className="max-w-7xl mx-auto px-6">

@@ -2,40 +2,20 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 
-const events = [
-  {
-    name: "Cumpleaños",
-    description: "Celebrá tu día especial con estilo y comodidad",
-    image: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600&q=80",
-  },
-  {
-    name: "Bodas",
-    description: "El escenario perfecto para el día más importante",
-    image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80",
-  },
-  {
-    name: "Baby Shower",
-    description: "Recibí a tu bebé con la celebración que merece",
-    image: "https://images.unsplash.com/photo-1544078751-58fee2d8a03b?w=600&q=80",
-  },
-  {
-    name: "Bautizos",
-    description: "Un momento sagrado rodeado de amor y naturaleza",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80",
-  },
-  {
-    name: "Corporativos",
-    description: "Eventos empresariales en un entorno premium",
-    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80",
-  },
-  {
-    name: "Reuniones Familiares",
-    description: "Reuní a toda la familia en un espacio único",
-    image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80",
-  },
-];
+const EVENT_META: Record<string, { name: string; description: string }> = {
+  cumpleanos:  { name: "Cumpleaños",          description: "Celebrá tu día especial con estilo y comodidad" },
+  bodas:       { name: "Bodas",               description: "El escenario perfecto para el día más importante" },
+  babyshower:  { name: "Baby Shower",         description: "Recibí a tu bebé con la celebración que merece" },
+  bautizos:    { name: "Bautizos",            description: "Un momento sagrado rodeado de amor y naturaleza" },
+  corporativos:{ name: "Corporativos",        description: "Eventos empresariales en un entorno premium" },
+  familiares:  { name: "Reuniones Familiares",description: "Reuní a toda la familia en un espacio único" },
+};
 
-export default function Events() {
+export default function Events({ images }: { images: Record<string, string> }) {
+  const events = Object.entries(EVENT_META).map(([key, meta]) => ({
+    ...meta,
+    image: images[key] ?? "",
+  }));
   return (
     <section id="eventos" className="py-28 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">

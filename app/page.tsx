@@ -23,8 +23,8 @@ export default function Home() {
       <Navbar />
       <Hero images={photos.hero} />
       <Stats />
-      <Facilities />
-      <Events />
+      <Facilities images={photos.facilities} />
+      <Events images={photos.events} />
       <Gallery items={photos.gallery} />
       <Pricing />
       <Booking />

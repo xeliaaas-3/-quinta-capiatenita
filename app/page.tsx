@@ -22,7 +22,7 @@ export default function Home() {
       <Stats />
       <Facilities />
       <Events />
-      <Gallery />
+      <Gallery items={photos.gallery} />
       <Pricing />
       <Booking />
       <Testimonials />

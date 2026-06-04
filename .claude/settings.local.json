@@ -3,7 +3,8 @@
     "allow": [
       "mcp__Claude_in_Chrome__tabs_context_mcp",
       "WebFetch(domain:xn--quintacapiateita-jub.com)",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "Bash(node -e \"const p = require\\('./node_modules/next/package.json'\\); console.log\\(p.version\\)\")"
     ]
   }
 }

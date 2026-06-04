@@ -6,79 +6,25 @@ import { X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 
 type Filter = "todos" | "piscina" | "quincho" | "salon" | "eventos" | "exterior";
 
-const galleryItems = [
-  {
-    src: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=85",
-    category: "piscina",
-    alt: "Piscina resort",
-    span: "col-span-2 row-span-2",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&q=85",
-    category: "salon",
-    alt: "Salón de eventos",
-    span: "",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&q=85",
-    category: "eventos",
-    alt: "Evento especial",
-    span: "",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=85",
-    category: "quincho",
-    alt: "Quincho gourmet",
-    span: "",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800&q=85",
-    category: "salon",
-    alt: "Salón decorado",
-    span: "col-span-2",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600&q=85",
-    category: "eventos",
-    alt: "Cumpleaños",
-    span: "",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=85",
-    category: "eventos",
-    alt: "Boda elegante",
-    span: "",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=85",
-    category: "quincho",
-    alt: "Asado y parrilla",
-    span: "",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=85",
-    category: "piscina",
-    alt: "Piscina de noche",
-    span: "",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=85",
-    category: "exterior",
-    alt: "Jardines exteriores",
-    span: "col-span-2",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1444964280367-c8fbd9c9e0e4?w=600&q=85",
-    category: "exterior",
-    alt: "Atardecer en la quinta",
-    span: "",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=85",
-    category: "eventos",
-    alt: "Evento corporativo",
-    span: "",
-  },
+interface GalleryItem {
+  src: string;
+  category: string;
+  alt: string;
+}
+
+const SPANS = [
+  "col-span-2 row-span-2",
+  "",
+  "",
+  "",
+  "col-span-2",
+  "",
+  "",
+  "",
+  "",
+  "col-span-2",
+  "",
+  "",
 ];
 
 const filters: { key: Filter; label: string }[] = [
@@ -90,13 +36,13 @@ const filters: { key: Filter; label: string }[] = [
   { key: "exterior", label: "Exterior" },
 ];
 
-export default function Gallery() {
+export default function Gallery({ items }: { items: GalleryItem[] }) {
   const [activeFilter, setActiveFilter] = useState<Filter>("todos");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const filtered = activeFilter === "todos"
-    ? galleryItems
-    : galleryItems.filter((item) => item.category === activeFilter);
+    ? items
+    : items.filter((item) => item.category === activeFilter);
 
   const openLightbox = useCallback((idx: number) => setLightboxIndex(idx), []);
   const closeLightbox = useCallback(() => setLightboxIndex(null), []);
@@ -151,40 +97,39 @@ export default function Gallery() {
           ))}
         </div>
 
-        {/* Masonry-style grid */}
-        <motion.div
-          layout
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[200px]"
-        >
-          <AnimatePresence mode="popLayout">
-            {filtered.map((item, i) => (
-              <motion.div
-                key={item.src}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.4 }}
-                className={`relative rounded-2xl overflow-hidden cursor-pointer group ${item.span}`}
-                onClick={() => openLightbox(i)}
-              >
-                <Image
-                  src={item.src}
-                  alt={item.alt}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-700"
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
-                  <ZoomIn
-                    size={28}
-                    className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 drop-shadow-lg"
+        {/* Grid */}
+        {filtered.length === 0 ? (
+          <div className="text-center py-20 text-gray-400">No hay fotos en esta categoría.</div>
+        ) : (
+          <motion.div layout className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[200px]">
+            <AnimatePresence mode="popLayout">
+              {filtered.map((item, i) => (
+                <motion.div
+                  key={item.src + i}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.4 }}
+                  className={`relative rounded-2xl overflow-hidden cursor-pointer group ${SPANS[i % SPANS.length] ?? ""}`}
+                  onClick={() => openLightbox(i)}
+                >
+                  <Image
+                    src={item.src}
+                    alt={item.alt}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-700"
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                    unoptimized
                   />
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
+                    <ZoomIn size={28} className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 drop-shadow-lg" />
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
       </div>
 
       {/* Lightbox */}
@@ -194,7 +139,7 @@ export default function Gallery() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 lightbox-overlay"
+            className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
             onClick={closeLightbox}
           >
             <button
@@ -226,6 +171,7 @@ export default function Gallery() {
                 fill
                 className="object-contain"
                 sizes="100vw"
+                unoptimized
               />
             </motion.div>
 
@@ -236,7 +182,7 @@ export default function Gallery() {
               <ChevronRight size={28} />
             </button>
 
-            <div className="absolute bottom-6 text-white/50 text-sm">
+            <div className="absolute bottom-6 left-0 right-0 text-center text-white/50 text-sm">
               {lightboxIndex + 1} / {filtered.length}
             </div>
           </motion.div>
